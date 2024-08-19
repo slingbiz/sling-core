@@ -12,20 +12,21 @@ async function initializeWidgetRegistry() {
         "${serviceUrl}/v1/frontend/getWidgets"
       );
 
-      console.log(
-        process.env.NEXT_PUBLIC_CLIENT_KEY_SECRET,
-        "NEXT_PUBLIC_CLIENT_KEY_SECRET"
+      const response = await axiosSling.post(
+        `${serviceUrl}/v1/frontend/getWidgets`,
+        { size: 1000 } // To be updated. This is a temporary fix to fetch all widgets
       );
-      console.log(process.env.NEXT_PUBLIC_CLIENT_ID, "NEXT_PUBLIC_CLIENT_ID");
-      console.log(process.env.NEXT_PUBLIC_API_URL, "NEXT_PUBLIC_API_URL");
-      const response = await axiosSling.post(`${serviceUrl}/v1/frontend/getWidgets`);
-      setWidgets(response.data);
+
+      // Extracting the widgets array from the response
+      const widgets = response.data?.widgets?.widgets || [];
+
+      // Assuming setWidgets is a function that updates the widget registry
+      setWidgets(widgets);
     } catch (error) {
       console.error("Error fetching widgets from the database:", error.message);
     }
   }
 }
-
 export async function registerWidget(name, component, options = {}) {
   await initializeWidgetRegistry(); // Ensure registry is initialized before proceeding
 
@@ -55,18 +56,18 @@ export async function registerWidget(name, component, options = {}) {
     config,
     requiredProps,
   };
-
+ 
   if (widgetRegistry[widgetKey]) {
     console.warn(`Widget with name ${name} is already registered. Updating...`);
 
     // Update the existing widget
     try {
       //TODO - rEmove the commented code later
-      // await axiosSling.put(`${serviceUrl}/v1/frontend/widgets`, {
-      //   id: widgetRegistry[widgetKey]._id,
-      //   widget: widgetData,
-      // });
-      // widgetRegistry[widgetKey] = { component, metadata: widgetData };
+      await axiosSling.put(`${serviceUrl}/v1/frontend/updateWidgetByKey`, {
+        key,
+        widget: widgetData,
+      });
+      widgetRegistry[widgetKey] = { component, metadata: widgetData };
     } catch (err) {
       console.error("Error updating widget metadata:", err);
     }
@@ -86,9 +87,10 @@ export async function registerWidget(name, component, options = {}) {
   }
 }
 
+// This function is used to update the widget registry with the widgets fetched from the database
 export function setWidgets(widgets) {
-  Object.keys(widgets).forEach((name) => {
-    widgetRegistry[name] = widgets[name];
+  widgets.forEach((widget) => {
+    widgetRegistry[widget.key] = widget;
   });
 }
 
