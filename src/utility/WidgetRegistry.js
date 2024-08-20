@@ -3,32 +3,36 @@ import axiosSling from "./AxiosSling";
 const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:10001";
 const widgetRegistry = {};
 
-async function initializeWidgetRegistry() {
+let initializingPromise = null;
+
+const initializeWidgetRegistry = async () => {
   if (Object.keys(widgetRegistry).length === 0) {
-    // Initialize registry if empty
-    try {
-      console.log(
-        `${serviceUrl}/v1/frontend/getWidgets`,
-        "${serviceUrl}/v1/frontend/getWidgets"
-      );
+    if (!initializingPromise) {
+      initializingPromise = (async () => {
+        try {
+          const response = await axiosSling.post(
+            `${serviceUrl}/v1/frontend/getWidgets`,
+            { size: 1000 } // Temporary fix to fetch all widgets
+          );
 
-      const response = await axiosSling.post(
-        `${serviceUrl}/v1/frontend/getWidgets`,
-        { size: 1000 } // To be updated. This is a temporary fix to fetch all widgets
-      );
-
-      // Extracting the widgets array from the response
-      const widgets = response.data?.widgets?.widgets || [];
-
-      // Assuming setWidgets is a function that updates the widget registry
-      setWidgets(widgets);
-    } catch (error) {
-      console.error("Error fetching widgets from the database:", error.message);
+          const widgets = response.data?.widgets?.widgets || [];
+          setWidgets(widgets);
+        } catch (error) {
+          console.error(
+            "Error fetching widgets from the database:",
+            error.message
+          );
+        } finally {
+          initializingPromise = null;
+        }
+      })();
     }
+    await initializingPromise;
   }
-}
-export async function registerWidget(name, component, options = {}) {
-  await initializeWidgetRegistry(); // Ensure registry is initialized before proceeding
+};
+
+export const registerWidget = async (name, component, options = {}) => {
+  await initializeWidgetRegistry();
 
   const {
     description,
@@ -42,13 +46,13 @@ export async function registerWidget(name, component, options = {}) {
     requiredProps,
   } = options;
 
-  const widgetKey = key; // Use name as the unique key
+  const widgetKey = key;
 
   const widgetData = {
     name,
     description,
     type,
-    key,
+    key: widgetKey,
     icon,
     ownership,
     props,
@@ -56,50 +60,52 @@ export async function registerWidget(name, component, options = {}) {
     config,
     requiredProps,
   };
- 
-  if (widgetRegistry[widgetKey]) {
-    console.warn(`Widget with name ${name} is already registered. Updating...`);
 
-    // Update the existing widget
-    try {
-      //TODO - rEmove the commented code later
-      await axiosSling.put(`${serviceUrl}/v1/frontend/updateWidgetByKey`, {
-        key,
-        widget: widgetData,
-      });
-      widgetRegistry[widgetKey] = { component, metadata: widgetData };
-    } catch (err) {
-      console.error("Error updating widget metadata:", err);
+  // Update the registry with the latest component
+  widgetRegistry[widgetKey] = { ...widgetData, component };
+
+  if (widgetRegistry[widgetKey]) {
+    const existingWidget = widgetRegistry[widgetKey];
+
+    const isDifferent =
+      description !== existingWidget.description ||
+      icon !== existingWidget.icon ||
+      name !== existingWidget.name ||
+      JSON.stringify(props) !== JSON.stringify(existingWidget.props) ||
+      type !== existingWidget.type ||
+      JSON.stringify(requiredProps) !== JSON.stringify(existingWidget.requiredProps);
+
+    if (isDifferent) {
+      try {
+        await axiosSling.put(`${serviceUrl}/v1/frontend/updateWidgetByKey`, {
+          key,
+          widget: widgetData,
+        });
+      } catch (err) {
+        console.error("Error updating widget:", err);
+      }
+    } else {
+      console.log(`Widget ${name} is already up to date.`);
     }
   } else {
-    // Create a new widget
-    widgetRegistry[widgetKey] = { component, metadata: widgetData };
-
     try {
-      const response = await axiosSling.post(
-        `${serviceUrl}/v1/frontend/widgets`,
-        widgetData
-      );
-      widgetRegistry[widgetKey]._id = response.data._id; // Store the ID from the response
+      await axiosSling.post(`${serviceUrl}/v1/frontend/widgets`, widgetData);
     } catch (err) {
-      console.error("Error saving widget metadata:", err.message);
+      console.error("Error saving widget:", err);
     }
   }
-}
+};
 
-// This function is used to update the widget registry with the widgets fetched from the database
-export function setWidgets(widgets) {
+export const setWidgets = (widgets) => {
   widgets.forEach((widget) => {
     widgetRegistry[widget.key] = widget;
   });
-}
+};
 
-export function getAllWidgets() {
-  return widgetRegistry;
-}
+export const getAllWidgets = () => widgetRegistry;
 
 export default {
-  fetchWidgetsFromDB: initializeWidgetRegistry, // Optional if you want to expose it separately
+  fetchWidgetsFromDB: initializeWidgetRegistry,
   registerWidget,
   setWidgets,
   getAllWidgets,
