@@ -59,10 +59,12 @@ export const registerWidget = async (name, component, options = {}) => {
     availableToAllPages,
     config,
     requiredProps,
+    component // Storing the component directly in the widget data
   };
 
-  // Update the registry with the latest component
-  widgetRegistry[widgetKey] = { ...widgetData, component };
+  // Update the registry with the latest component and data
+  widgetRegistry[widgetKey] = widgetData;
+  console.log(widgetRegistry[widgetKey], 'widgetRegistry[widgetKey]', key);
 
   if (widgetRegistry[widgetKey]) {
     const existingWidget = widgetRegistry[widgetKey];
