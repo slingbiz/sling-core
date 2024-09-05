@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@material-ui/core/Box";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
@@ -8,14 +8,32 @@ import Wrappers from "../../wrappers/index";
 import ErrorBoundary from "../../utility/ErrorBoundary";
 
 const RenderTree = (props) => {
-  const { ComponentBlocks, Blocks } = props;
-  const Widgets = getAllWidgets();
+  const { ComponentBlocks, Blocks, Widgets: directWidgets } = props;
+  const [widgets, setWidgets] = useState({});
 
   const NodeTypeMap = {
     componentBlock: ComponentBlocks,
-    widget: Widgets,
+    widget: widgets,
     block: Blocks,
   };
+
+  useEffect(() => {
+    // This will only run on the client side
+    const fetchWidgets = async () => {
+      const fetchedWidgets = getAllWidgets(); // Fetch widgets (client-side only)
+      console.log("Directly passed widgets (client-side):", fetchedWidgets);
+      setWidgets(fetchedWidgets);
+    };
+    fetchWidgets();
+  }, []);
+
+
+  console.log("Directly passed widgets:", directWidgets);
+  console.log("Fetched widgets:", getAllWidgets());
+  useEffect(() => {
+    console.log("Directly passed widgets:", directWidgets);
+    console.log("Fetched widgets:", getAllWidgets());
+  }, []);
 
   const { layout } = props;
   const tree = layout?.root;

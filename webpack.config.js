@@ -1,27 +1,28 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
-  entry: './index.js',
+  entry: "./index.js",
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
-    libraryTarget: 'commonjs2',
+    path: path.resolve(__dirname, "dist"),
+    filename: "index.js",
+    libraryTarget: "commonjs2",
   },
   externals: {
-    react: 'react',
-    axios: 'axios',
-    '@material-ui/core': '@material-ui/core',
+    react: "react",
+    "react-dom": "react-dom",
+    axios: "axios",
+    "@material-ui/core": "@material-ui/core",
   },
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: 'babel-loader',
+        use: "babel-loader",
       },
     ],
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: [".js", ".jsx"],
   },
 };

@@ -59,7 +59,7 @@ export const registerWidget = async (name, component, options = {}) => {
     availableToAllPages,
     config,
     requiredProps,
-    component // Storing the component directly in the widget data
+    component // Dynamically registering the component here
   };
 
   // Update the registry with the latest component and data
@@ -100,11 +100,17 @@ export const registerWidget = async (name, component, options = {}) => {
 
 export const setWidgets = (widgets) => {
   widgets.forEach((widget) => {
-    widgetRegistry[widget.key] = widget;
+    if (!widgetRegistry[widget.key]) {
+      widgetRegistry[widget.key] = { ...widget };
+      console.log(`Registered widget: ${widget.key}`, widgetRegistry[widget.key]);
+    }
   });
 };
 
-export const getAllWidgets = () => widgetRegistry;
+export const getAllWidgets = () => {
+  console.log("Returning all registered widgets:", widgetRegistry);
+  return widgetRegistry;
+};
 
 export default {
   fetchWidgetsFromDB: initializeWidgetRegistry,
