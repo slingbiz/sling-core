@@ -10,14 +10,94 @@ import Button from '@material-ui/core/Button';
 import Link from "next/link";
 import languageData from "./data";
 
+const useStyles = makeStyles((theme) => ({
+    langBtn: {
+        justifyContent: 'flex-start',
+        width: '100%',
+        height: 56,
+        fontSize: 16,
+        borderRadius: 0,
+        paddingLeft: '0.45rem',
+        paddingRight: '1rem',
+        paddingTop: '0.25rem',
+        paddingBottom: '0.25rem',
+        marginTop: '-10px',
+        color: theme.palette.text.primary,
+        '&:hover, &:focus': {
+            color: theme.palette.text.primary,
+        },
+        [theme.breakpoints.up('sm')]: {
+            minHeight: 70,
+        },
+        [theme.breakpoints.up('md')]: {
+            fontWeight: Fonts.MEDIUM,
+            justifyContent: 'center',
+            width: 'auto',
+            borderLeft: 'solid 1px',
+            borderLeftColor: theme.palette.grey[200],
+            marginTop: 0,
+            color: theme.palette.text.primary,
+            '&:hover, &:focus': {
+                color: theme.palette.text.primary,
+            },
+        },
+        [theme.breakpoints.up('lg')]: {
+            fontSize: 14,
+            paddingLeft: '0.75rem',
+            paddingRight: '1.5rem',
+            paddingTop: '0.75rem',
+            paddingBottom: '0.75rem',
+        },
+        [theme.breakpoints.up('xl')]: {
+            paddingLeft: '1.25rem',
+            paddingRight: '2.5rem',
+        },
+        '&.langIconOnly': {
+            paddingLeft: '0.8rem',
+            paddingRight: '0.8rem',
+            paddingTop: '0.25rem',
+            paddingBottom: '0.25rem',
+            height: 56,
+            borderLeft: '0 none',
+            borderRadius: '50%',
+            [theme.breakpoints.up('sm')]: {
+                height: 70,
+            },
+            [theme.breakpoints.up('xl')]: {
+                paddingLeft: '12px',
+                paddingRight: '12px',
+                width: '100%',
+            },
+        },
+    },
+    overflowHidden: {
+        overflow: 'hidden',
+    },
+    dashboardBtn: {
+        backgroundColor: '#ff9800',
+        color: theme.palette.primary.contrastText,
+        fontWeight: Fonts.BOLD,
+        paddingRight: 20,
+        marginRight: 20,
+        textTransform: 'none',
+        paddingLeft: 20,
+        '&:hover, &:focus': {
+            backgroundColor: '#ff9800',
+            color: theme.palette.secondary.contrastText,
+        },
+    },
+}));
+
 const LanguageSwitcher = (props) => {
     const {iconOnly} = props;
     const {changeLocale, rtlLocale, locale, setRTL} = useContext(AppContext);
     const [anchorElLng, setAnchorElLng] = React.useState(null);
+    const classes = useStyles();
 
     const onClickMenu = (event) => {
         setAnchorElLng(event.currentTarget);
     };
+
     const changeLanguage = (language) => {
         if (rtlLocale.indexOf(language.locale) !== -1) {
             setRTL(true);
@@ -28,104 +108,10 @@ const LanguageSwitcher = (props) => {
         setAnchorElLng(null);
     };
 
-    const useStyles = makeStyles((theme) => ({
-        langBtn: {
-            justifyContent: 'flex-start',
-            width: '100%',
-            height: 56,
-            fontSize: 16,
-            borderRadius: 0,
-            paddingLeft: '0.45rem',
-            paddingRight: '1rem',
-            paddingTop: '0.25rem',
-            paddingBottom: '0.25rem',
-            marginTop: '-10px',
-            color: theme.palette.text.primary,
-            '&:hover, &:focus': {
-                color: theme.palette.text.primary,
-            },
-            [theme.breakpoints.up('sm')]: {
-                minHeight: 70,
-            },
-            [theme.breakpoints.up('md')]: {
-                fontWeight: Fonts.MEDIUM,
-                justifyContent: 'center',
-                width: 'auto',
-                borderLeft: 'solid 1px',
-                borderLeftColor: theme.palette.grey[200],
-                // textTransform: 'uppercase',
-                marginTop: 0,
-                color: theme.palette.text.primary,
-                '&:hover, &:focus': {
-                    color: theme.palette.text.primary,
-                },
-            },
-            [theme.breakpoints.up('lg')]: {
-                fontSize: 14,
-                paddingLeft: '0.75rem',
-                paddingRight: '1.5rem',
-                paddingTop: '0.75rem',
-                paddingBottom: '0.75rem',
-            },
-            [theme.breakpoints.up('xl')]: {
-                paddingLeft: '1.25rem',
-                paddingRight: '2.5rem',
-            },
-            '&.langIconOnly': {
-                paddingLeft: '0.8rem',
-                paddingRight: '0.8rem',
-                paddingTop: '0.25rem',
-                paddingBottom: '0.25rem',
-                height: 56,
-                borderLeft: '0 none',
-                borderRadius: '50%',
-                [theme.breakpoints.up('sm')]: {
-                    height: 70,
-                },
-                [theme.breakpoints.up('xl')]: {
-                    paddingLeft: '12px',
-                    paddingRight: '12px',
-                    width: '100%',
-                },
-            },
-        },
-        overflowHidden: {
-            overflow: 'hidden',
-        },
-        alignMiddle: {
-            verticalAlign: 'middle',
-            display: 'inline-block',
-        },
-        textUppercase: {
-            textTransform: 'uppercase',
-        },
-        dashboardBtn: {
-            backgroundColor: '#ff9800',
-            color: theme.palette.primary.contrastText,
-            fontWeight: Fonts.BOLD,
-            paddingRight: 20,
-            marginRight: 20,
-            textTransform: 'none',
-            paddingLeft: 20,
-            '&:hover, &:focus': {
-                backgroundColor: '#ff9800',
-                color: theme.palette.secondary.contrastText,
-            },
-        },
-    }));
-
-    const classes = useStyles(props);
-
     return (
         <Box>
             <IconButton
-                className={clsx(
-                    classes.langBtn,
-                    {
-                        langIconOnly: iconOnly,
-                    },
-                    'langBtn',
-                )}
+                className={clsx(classes.langBtn, {langIconOnly: iconOnly})}
                 aria-label='account of current user'
                 aria-controls='language-switcher'
                 aria-haspopup='true'
@@ -145,14 +131,6 @@ const LanguageSwitcher = (props) => {
                             className={classes.overflowHidden}>
                             <i className={`flag flag-24 flag-${locale.icon}`}/>
                         </Box>
-                        {/*<Box*/}
-                        {/*    component='span'*/}
-                        {/*    fontSize={16}*/}
-                        {/*    fontFamily='Poppins'*/}
-                        {/*    fontWeight={Fonts.REGULAR}*/}
-                        {/*    display='inline-block'>*/}
-                        {/*    {locale.name}*/}
-                        {/*</Box>*/}
                     </>
                 ) : (
                     <Box>

@@ -1,14 +1,30 @@
-import React, {useContext, useEffect} from 'react';
-import PropTypes from 'prop-types';
-import MomentUtils from '@date-io/moment';
-import {ThemeProvider} from '@material-ui/core/styles';
-import {MuiPickersUtilsProvider} from '@material-ui/pickers';
+import React, { useContext, useEffect } from "react";
+import PropTypes from "prop-types";
+import MomentUtils from "@date-io/moment";
+import { ThemeProvider } from "@material-ui/core/styles";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 
-import AppContext from '../AppContext';
-import {createTheme, responsiveFontSizes} from '@material-ui/core';
-import {isBreakPointDown} from '../Utils';
-import {ThemeStyle} from '../constants/AppEnums';
-import {useUrlSearchParams} from 'use-url-search-params';
+import AppContext from "../AppContext";
+import { createTheme } from "@material-ui/core/styles";
+
+import { responsiveFontSizes } from "@material-ui/core";
+import { isBreakPointDown } from "../Utils";
+import { ThemeStyle } from "../constants/AppEnums";
+import { useUrlSearchParams } from "use-url-search-params";
+const themeDef = createTheme({
+  typography: {
+    fontFamily: "Open Sans, sans-serif",
+  },
+  overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        body: {
+          fontFamily: "Open Sans, sans-serif",
+        },
+      },
+    },
+  },
+});
 
 const SlingThemeProvider = (props) => {
   const {
@@ -21,8 +37,8 @@ const SlingThemeProvider = (props) => {
     updateTheme,
     locale,
   } = useContext(AppContext);
-  const {appLocale} = props;
-  const {muiLocale} = appLocale[locale.locale];
+  const { appLocale } = props;
+  const { muiLocale } = appLocale[locale.locale];
 
   const [params] = useUrlSearchParams({});
 
@@ -41,9 +57,9 @@ const SlingThemeProvider = (props) => {
         setRTL(params.is_rtl);
       }
       if (params.is_rtl || isRTL) {
-        document.body.setAttribute('dir', 'rtl');
+        document.body.setAttribute("dir", "rtl");
       } else {
-        document.body.setAttribute('dir', 'ltr');
+        document.body.setAttribute("dir", "ltr");
       }
     };
     updateQuerySetting();
@@ -62,7 +78,7 @@ const SlingThemeProvider = (props) => {
     const updateQuerySetting = () => {
       if (params.theme_style) {
         if (params.theme_style === ThemeStyle.MODERN) {
-          if (isBreakPointDown('md')) {
+          if (isBreakPointDown("md")) {
             theme.overrides.MuiCard.root.borderRadius = 20;
             theme.overrides.MuiToggleButton.root.borderRadius = 20;
           } else {
@@ -84,8 +100,19 @@ const SlingThemeProvider = (props) => {
     updateQuerySetting();
   }, [params.theme_style, theme, updateTheme, updateThemeStyle]);
 
+  // Merging custom theme with MUI locale-specific settings
+  const mergedTheme = createTheme({
+    ...theme,
+    ...muiLocale, // Material-UI locale settings
+    // typography: {
+    //   ...theme.typography,
+    //   fontFamily: "Open Sans, sans-serif", // Set Open Sans as default font
+    // },
+    ...themeDef, // Your custom theme
+  });
+  console.log(JSON.stringify(theme), "mergedTheme");
   return (
-    <ThemeProvider theme={responsiveFontSizes(createTheme(theme, muiLocale))}>
+    <ThemeProvider theme={responsiveFontSizes(mergedTheme)}>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         {props.children}
       </MuiPickersUtilsProvider>
