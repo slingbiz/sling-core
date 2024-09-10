@@ -6,35 +6,44 @@ import Hidden from "@material-ui/core/Hidden";
 import { getAllWidgets } from "../../utility/WidgetRegistry";
 import Wrappers from "../../wrappers/index";
 import ErrorBoundary from "../../utility/ErrorBoundary";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Skeleton from "@material-ui/lab/Skeleton";
+
+const DefaultErrorComponent = ({ error, key }) => (
+  <Box
+    border={1}
+    borderColor="red"
+    padding={2}
+    margin={1}
+    color="red"
+    key={key}
+  >
+    Widget/Block Error: {error} - Please check the configuration of "{key}"
+  </Box>
+);
 
 const RenderTree = (props) => {
-  const {
-    Components: directComponents,
-    Widgets: directWidgets,
-    Blocks: directBlocks,
-  } = props;
   const [widgets, setWidgets] = useState({});
-  const [blocks, setBlocks] = useState({}); // State to hold blocks
-  const [components, setComponents] = useState({}); // State to hold components
+  const [blocks, setBlocks] = useState({});
+  const [components, setComponents] = useState({});
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const NodeTypeMap = {
     component: components,
-    componentBlock: components, // TODO: Remove this once we clean componentBlock from the code and database. This is only a fall back for old componentBlocks 
+    componentBlock: components,
     widget: widgets,
-    block: blocks, // Use dynamically fetched blocks here
+    block: blocks,
   };
 
   useEffect(() => {
-    // This will only run on the client side
     const fetchWidgets = async () => {
-      const fetchedWidgets = getAllWidgets(); // Fetch widgets, blocks, and components (client-side only)
+      const fetchedWidgets = getAllWidgets();
       console.log("Fetched Widgets (client-side):", fetchedWidgets);
 
-      const fetchedBlocks = {}; // Object to store blocks
-      const fetchedWidgetsOnly = {}; // Object to store widgets
-      const fetchedComponents = {}; // Object to store components
+      const fetchedBlocks = {};
+      const fetchedWidgetsOnly = {};
+      const fetchedComponents = {};
 
-      // Filter fetched widgets into blocks, widgets, and components based on type
       for (const key in fetchedWidgets) {
         const widgetType = fetchedWidgets[key].type;
 
@@ -47,33 +56,27 @@ const RenderTree = (props) => {
         }
       }
 
-      setBlocks(fetchedBlocks); // Set fetched blocks
-      setWidgets(fetchedWidgetsOnly); // Set fetched widgets
-      setComponents(fetchedComponents); // Set fetched components
+      setBlocks(fetchedBlocks);
+      setWidgets(fetchedWidgetsOnly);
+      setComponents(fetchedComponents);
+      setLoading(false); // Set loading to false after fetching
     };
 
     fetchWidgets();
   }, []);
 
-  console.log("Directly passed components:", directComponents);
-  console.log("Fetched components:", components);
-
   const { layout } = props;
   const tree = layout?.root;
   const elements = [];
 
-  const DefaultErrorComponent = ({ error, key }) => (
-    <Box
-      border={1}
-      borderColor="red"
-      padding={2}
-      margin={1}
-      color="red"
-      key={key}
-    >
-      Widget/Block Error: {error} - Please check the configuration of "{key}"
-    </Box>
-  );
+  if (loading || !tree) {
+    return (
+      <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
+        <CircularProgress />
+        {/* <Skeleton variant="rect" width={210} height={118} /> */}
+      </Box>
+    );
+  }
 
   const processRows = (rows) => {
     return rows?.map(({ cells, config }) => {
@@ -89,17 +92,15 @@ const RenderTree = (props) => {
                 let CellComponent = null;
 
                 try {
-                  // Determine if it's a widget, block, or componentBlock
                   if (NodeTypeMap[type]?.[key]?.component) {
                     CellComponent = NodeTypeMap[type]?.[key]?.component;
                   } else {
-                    CellComponent = blocks[key]; // Use dynamic blocks
+                    CellComponent = blocks[key];
                     if (type) {
                       CellComponent = NodeTypeMap[type]?.[key];
                     }
                   }
 
-                  // Handle blocks
                   if (
                     typeof CellComponent === "object" &&
                     CellComponent?.component
@@ -108,12 +109,18 @@ const RenderTree = (props) => {
                   }
 
                   if (!CellComponent) {
-                    console.warn(`Component still not found for ${key}`, NodeTypeMap, type, key, 'type - key');
+                    console.warn(
+                      `Component still not found for ${key}`,
+                      NodeTypeMap,
+                      type,
+                      key,
+                      "type - key"
+                    );
                   } else {
                     console.log(`Component found for ${key}`, CellComponent);
                   }
 
-                  if (CellComponent) {
+                  if (CellComponent && typeof CellComponent != "object") {
                     const RenderedComponent = (
                       <ErrorBoundary key={index}>
                         <CellComponent
@@ -230,8 +237,8 @@ const RenderTree = (props) => {
 RenderTree.propTypes = {
   layout: PropTypes.object,
   ComponentBlocks: PropTypes.object.isRequired,
-  Blocks: PropTypes.object.isRequired, // Optional, as we are now fetching blocks dynamically
-  Widgets: PropTypes.object, // Widgets can be passed too
+  Blocks: PropTypes.object.isRequired,
+  Widgets: PropTypes.object,
 };
 
 export default RenderTree;
