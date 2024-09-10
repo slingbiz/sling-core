@@ -44,6 +44,7 @@ export const registerWidget = async (name, component, options = {}) => {
     availableToAllPages,
     config,
     requiredProps,
+    widgetType = "widget", // Default to 'widget', but can be 'block' or 'component'
   } = options;
 
   const widgetKey = key;
@@ -59,7 +60,8 @@ export const registerWidget = async (name, component, options = {}) => {
     availableToAllPages,
     config,
     requiredProps,
-    component // Dynamically registering the component here
+    component, // Dynamically registering the component here
+    widgetType, // Added widgetType to differentiate between widget, block, and component
   };
 
   // Update the registry with the latest component and data
@@ -75,7 +77,8 @@ export const registerWidget = async (name, component, options = {}) => {
       name !== existingWidget.name ||
       JSON.stringify(props) !== JSON.stringify(existingWidget.props) ||
       type !== existingWidget.type ||
-      JSON.stringify(requiredProps) !== JSON.stringify(existingWidget.requiredProps);
+      JSON.stringify(requiredProps) !== JSON.stringify(existingWidget.requiredProps) ||
+      widgetType !== existingWidget.widgetType;
 
     if (isDifferent) {
       try {
@@ -107,7 +110,15 @@ export const setWidgets = (widgets) => {
   });
 };
 
-export const getAllWidgets = () => {
+export const getAllWidgets = (type = null) => {
+  if (type) {
+    // Filter the registry based on widgetType (widget, block, component)
+    const filteredWidgets = Object.values(widgetRegistry).filter(
+      (widget) => widget.widgetType === type
+    );
+    console.log(`Returning ${type} widgets:`, filteredWidgets);
+    return filteredWidgets;
+  }
   console.log("Returning all registered widgets:", widgetRegistry);
   return widgetRegistry;
 };

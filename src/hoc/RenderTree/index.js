@@ -8,32 +8,47 @@ import Wrappers from "../../wrappers/index";
 import ErrorBoundary from "../../utility/ErrorBoundary";
 
 const RenderTree = (props) => {
-  const { ComponentBlocks, Blocks, Widgets: directWidgets } = props;
+  const {
+    ComponentBlocks,
+    Widgets: directWidgets,
+    Blocks: directBlocks,
+  } = props;
   const [widgets, setWidgets] = useState({});
+  const [blocks, setBlocks] = useState({}); // State to hold blocks
 
   const NodeTypeMap = {
     componentBlock: ComponentBlocks,
     widget: widgets,
-    block: Blocks,
+    block: blocks, // Use dynamically fetched blocks here
   };
 
   useEffect(() => {
     // This will only run on the client side
     const fetchWidgets = async () => {
-      const fetchedWidgets = getAllWidgets(); // Fetch widgets (client-side only)
-      console.log("Directly passed widgets (client-side):", fetchedWidgets);
-      setWidgets(fetchedWidgets);
+      const fetchedWidgets = getAllWidgets(); // Fetch widgets and blocks (client-side only)
+      console.log("Fetched Widgets (client-side):", fetchedWidgets);
+
+      // Assuming getAllWidgets fetches both widgets and blocks, you can separate them by type.
+      const fetchedBlocks = {}; // Assuming blocks have a type or key distinction
+      const fetchedWidgetComponents = {};
+
+      // Filter fetched widgets into blocks and widgets based on some criteria
+      for (const key in fetchedWidgets) {
+        if (fetchedWidgets[key].type === "block") {
+          fetchedBlocks[key] = fetchedWidgets[key];
+        } else {
+          fetchedWidgetComponents[key] = fetchedWidgets[key];
+        }
+      }
+
+      setBlocks(fetchedBlocks); // Set fetched blocks
+      setWidgets(fetchedWidgetComponents); // Set fetched widgets
     };
     fetchWidgets();
   }, []);
 
-
-  console.log("Directly passed widgets:", directWidgets);
-  console.log("Fetched widgets:", getAllWidgets());
-  useEffect(() => {
-    console.log("Directly passed widgets:", directWidgets);
-    console.log("Fetched widgets:", getAllWidgets());
-  }, []);
+  console.log("Directly passed blocks:", directBlocks);
+  console.log("Fetched Blocks:", blocks);
 
   const { layout } = props;
   const tree = layout?.root;
@@ -48,7 +63,7 @@ const RenderTree = (props) => {
       color="red"
       key={key}
     >
-      Widget Error: {error} - Please check the configuration of "{key}"
+      Widget/Block Error: {error} - Please check the configuration of "{key}"
     </Box>
   );
 
@@ -66,28 +81,31 @@ const RenderTree = (props) => {
                 let CellComponent = null;
 
                 try {
-                  if (NodeTypeMap?.["widget"]?.[key]?.component) {
-                    CellComponent = NodeTypeMap?.["widget"]?.[key]?.component;
+                  // Determine if it's a widget, block, or componentBlock
+                  if (NodeTypeMap[type]?.[key]?.component) {
+                    CellComponent = NodeTypeMap[type]?.[key]?.component;
                   } else {
-                    CellComponent = Blocks[key];
+                    CellComponent = blocks[key]; // Use dynamic blocks
                     if (type) {
-                      CellComponent = NodeTypeMap[type][key];
+                      CellComponent = NodeTypeMap[type]?.[key];
                     }
+                  }
+
+                  // Handle blocks
+                  if (
+                    typeof CellComponent === "object" &&
+                    CellComponent?.component
+                  ) {
+                    CellComponent = CellComponent.component;
                   }
 
                   if (!CellComponent) {
                     console.warn(`Component still not found for ${key}`);
-                    console.log(JSON.stringify(rows), "rows");
+                  } else {
+                    console.log(`Component found for ${key}`, CellComponent);
                   }
 
                   if (CellComponent) {
-                    console.log(
-                      `Type of CellComponent for ${key}:`,
-                      typeof CellComponent
-                    );
-
-                    console.log(`Component found for ${key}`, CellComponent);
-
                     const RenderedComponent = (
                       <ErrorBoundary key={index}>
                         <CellComponent
@@ -123,7 +141,7 @@ const RenderTree = (props) => {
                   }
                 } catch (error) {
                   console.error(
-                    `Error rendering widget/component "${key}":`,
+                    `Error rendering widget/block "${key}":`,
                     error
                   );
                   return (
@@ -204,7 +222,8 @@ const RenderTree = (props) => {
 RenderTree.propTypes = {
   layout: PropTypes.object,
   ComponentBlocks: PropTypes.object.isRequired,
-  Blocks: PropTypes.object.isRequired,
+  Blocks: PropTypes.object.isRequired, // Optional, as we are now fetching blocks dynamically
+  Widgets: PropTypes.object, // Widgets can be passed too
 };
 
 export default RenderTree;
