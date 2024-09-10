@@ -66,7 +66,6 @@ export const registerWidget = async (name, component, options = {}) => {
 
   // Update the registry with the latest component and data
   widgetRegistry[widgetKey] = widgetData;
-  console.log(widgetRegistry[widgetKey], 'widgetRegistry[widgetKey]', key);
 
   if (widgetRegistry[widgetKey]) {
     const existingWidget = widgetRegistry[widgetKey];
@@ -77,7 +76,8 @@ export const registerWidget = async (name, component, options = {}) => {
       name !== existingWidget.name ||
       JSON.stringify(props) !== JSON.stringify(existingWidget.props) ||
       type !== existingWidget.type ||
-      JSON.stringify(requiredProps) !== JSON.stringify(existingWidget.requiredProps) ||
+      JSON.stringify(requiredProps) !==
+        JSON.stringify(existingWidget.requiredProps) ||
       widgetType !== existingWidget.widgetType;
 
     if (isDifferent) {
@@ -105,7 +105,10 @@ export const setWidgets = (widgets) => {
   widgets.forEach((widget) => {
     if (!widgetRegistry[widget.key]) {
       widgetRegistry[widget.key] = { ...widget };
-      console.log(`Registered widget: ${widget.key}`, widgetRegistry[widget.key]);
+      console.log(
+        `Registered widget: ${widget.key}`,
+        widgetRegistry[widget.key]
+      );
     }
   });
 };

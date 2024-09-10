@@ -9,15 +9,16 @@ import ErrorBoundary from "../../utility/ErrorBoundary";
 
 const RenderTree = (props) => {
   const {
-    ComponentBlocks,
+    Components: directComponents,
     Widgets: directWidgets,
     Blocks: directBlocks,
   } = props;
   const [widgets, setWidgets] = useState({});
   const [blocks, setBlocks] = useState({}); // State to hold blocks
+  const [components, setComponents] = useState({}); // State to hold components
 
   const NodeTypeMap = {
-    componentBlock: ComponentBlocks,
+    component: components,
     widget: widgets,
     block: blocks, // Use dynamically fetched blocks here
   };
@@ -25,30 +26,36 @@ const RenderTree = (props) => {
   useEffect(() => {
     // This will only run on the client side
     const fetchWidgets = async () => {
-      const fetchedWidgets = getAllWidgets(); // Fetch widgets and blocks (client-side only)
+      const fetchedWidgets = getAllWidgets(); // Fetch widgets, blocks, and components (client-side only)
       console.log("Fetched Widgets (client-side):", fetchedWidgets);
 
-      // Assuming getAllWidgets fetches both widgets and blocks, you can separate them by type.
-      const fetchedBlocks = {}; // Assuming blocks have a type or key distinction
-      const fetchedWidgetComponents = {};
+      const fetchedBlocks = {}; // Object to store blocks
+      const fetchedWidgetsOnly = {}; // Object to store widgets
+      const fetchedComponents = {}; // Object to store components
 
-      // Filter fetched widgets into blocks and widgets based on some criteria
+      // Filter fetched widgets into blocks, widgets, and components based on type
       for (const key in fetchedWidgets) {
-        if (fetchedWidgets[key].type === "block") {
+        const widgetType = fetchedWidgets[key].type;
+
+        if (widgetType === "block") {
           fetchedBlocks[key] = fetchedWidgets[key];
+        } else if (widgetType === "component") {
+          fetchedComponents[key] = fetchedWidgets[key];
         } else {
-          fetchedWidgetComponents[key] = fetchedWidgets[key];
+          fetchedWidgetsOnly[key] = fetchedWidgets[key];
         }
       }
 
       setBlocks(fetchedBlocks); // Set fetched blocks
-      setWidgets(fetchedWidgetComponents); // Set fetched widgets
+      setWidgets(fetchedWidgetsOnly); // Set fetched widgets
+      setComponents(fetchedComponents); // Set fetched components
     };
+
     fetchWidgets();
   }, []);
 
-  console.log("Directly passed blocks:", directBlocks);
-  console.log("Fetched Blocks:", blocks);
+  console.log("Directly passed components:", directComponents);
+  console.log("Fetched components:", components);
 
   const { layout } = props;
   const tree = layout?.root;
