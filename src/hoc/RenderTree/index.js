@@ -19,6 +19,7 @@ const RenderTree = (props) => {
 
   const NodeTypeMap = {
     component: components,
+    componentBlock: components, // TODO: Remove this once we clean componentBlock from the code and database. This is only a fall back for old componentBlocks 
     widget: widgets,
     block: blocks, // Use dynamically fetched blocks here
   };
@@ -107,7 +108,7 @@ const RenderTree = (props) => {
                   }
 
                   if (!CellComponent) {
-                    console.warn(`Component still not found for ${key}`);
+                    console.warn(`Component still not found for ${key}`, NodeTypeMap, type, key, 'type - key');
                   } else {
                     console.log(`Component found for ${key}`, CellComponent);
                   }
