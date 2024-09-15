@@ -121,12 +121,8 @@ export const registerWidget = async (name, component, options = {}) => {
       icon !== existingWidget.icon ||
       name !== existingWidget.name ||
       type !== existingWidget.type;
-    console.log(isDifferent, "isDifferent - l1", widgetKey);
-
-    isDifferent = !compareProps(props, existingWidget.props);
-
-    console.log(isDifferent, "isDifferent - l2", widgetKey);
-
+ 
+    isDifferent = isDifferent || !compareProps(props, existingWidget.props);
     if (isDifferent) {
       try {
         await axiosSling.put(`${serviceUrl}/v1/frontend/updateWidgetByKey`, {
@@ -143,7 +139,7 @@ export const registerWidget = async (name, component, options = {}) => {
       console.log(`Widget ${name} is already up to date.`);
     }
   } else {
-    console.log("doesnt exist wnew widget widgetRegistry[widgetKey]");
+    // console.log("doesnt exist wnew widget widgetRegistry[widgetKey]");
     widgetData["ownership"] = "private";
     if (!widgetData.icon) {
       widgetData.icon = "widgets";
@@ -171,10 +167,10 @@ export const setWidgets = (widgets) => {
   widgets.forEach((widget) => {
     if (!widgetRegistry[widget.key]) {
       widgetRegistry[widget.key] = { ...widget };
-      console.log(
-        `Registered widget: ${widget.key}`,
-        widgetRegistry[widget.key]
-      );
+      // console.log(
+      //   `Registered widget: ${widget.key}`,
+      //   widgetRegistry[widget.key]
+      // );
     }
   });
 };
@@ -185,10 +181,10 @@ export const getAllWidgets = (type = null) => {
     const filteredWidgets = Object.values(widgetRegistry).filter(
       (widget) => widget.type === type
     );
-    console.log(`Returning ${type} widgets:`, filteredWidgets);
+    // console.log(`Returning ${type} widgets:`, filteredWidgets);
     return filteredWidgets;
   }
-  console.log("Returning all registered widgets:", widgetRegistry);
+  // console.log("Returning all registered widgets:", widgetRegistry);
   return widgetRegistry;
 };
 
