@@ -1,20 +1,44 @@
 {
   "name": "sling-core",
-  "version": "1.0.0",
+  "version": "1.2.8",
   "description": "Core components and utilities for Sling applications.",
   "main": "dist/index.js",
   "scripts": {
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "bugs": {
+    "url": "https://github.com/slingbiz/sling-fe/issues"
+  },
+  "homepage": "https://www.sling.biz",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:slingbiz/sling-fe.git"
+  },
+  "author": {
+    "name": "Sling Solutions SAS",
+    "email": "ankur@sling.biz",
+    "linkedin": "https://linkedin.com/in/ankurpata",
+    "url": "https://www.sling.biz"
+  },
   "license": "ISC",
   "dependencies": {
+    "@date-io/moment": "^3.0.0",
     "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/lab": "^4.0.0-alpha.61",
+    "@material-ui/pickers": "^3.3.11",
     "axios": "^1.7.3",
+    "jss-rtl": "^0.3.0",
+    "moment": "^2.30.1",
+    "next": "^14.2.7",
     "prop-types": "^15.8.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.3.1"
+    "react": "^18.3.1",
+    "react-bottom-scroll-listener": "^5.1.0",
+    "react-dom": "^18.3.1",
+    "react-intl": "^6.6.8",
+    "react-redux": "^9.1.2",
+    "use-url-search-params": "^2.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
@@ -27,6 +51,9 @@
     "webpack-cli": "^5.1.4"
   },
   "peerDependencies": {
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/pickers": "^3.3.11",
     "react": "^18.2.0",
     "react-dom": "^18.3.1"
   }
