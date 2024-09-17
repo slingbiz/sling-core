@@ -1,6 +1,6 @@
 import axiosSling from "./AxiosSling";
 
-const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:10001";
+const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "http://api.sling.biz";
 const widgetRegistry = {};
 
 let initializingPromise = null;
@@ -121,7 +121,7 @@ export const registerWidget = async (name, component, options = {}) => {
       icon !== existingWidget.icon ||
       name !== existingWidget.name ||
       type !== existingWidget.type;
- 
+
     isDifferent = isDifferent || !compareProps(props, existingWidget.props);
     if (isDifferent) {
       try {
