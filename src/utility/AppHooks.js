@@ -1,6 +1,6 @@
 const useDefaultUser = () => {
   return {
-    displayName: 'John Alex',
+    displayName: 'Sling Demo',
     email: 'demo@example.com',
     token: 'access-token',
     role: 'user',

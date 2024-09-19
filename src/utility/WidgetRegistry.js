@@ -110,9 +110,12 @@ export const registerWidget = async (name, component, options = {}) => {
     props,
     availableToAllPages,
     config,
-    component, // Dynamically registering the component here
   };
 
+  // Handling Symbol(react.forward_ref) and dynamic imports here
+  widgetData.component = component; // Store component as it is if not wrapped in Symbol
+
+  // Check if the widget is already in the registry
   if (widgetRegistry[widgetKey]) {
     const existingWidget = widgetRegistry[widgetKey];
 
@@ -123,6 +126,7 @@ export const registerWidget = async (name, component, options = {}) => {
       type !== existingWidget.type;
 
     isDifferent = isDifferent || !compareProps(props, existingWidget.props);
+
     if (isDifferent) {
       try {
         await axiosSling.put(`${serviceUrl}/v1/frontend/updateWidgetByKey`, {
@@ -139,7 +143,6 @@ export const registerWidget = async (name, component, options = {}) => {
       console.log(`Widget ${name} is already up to date.`);
     }
   } else {
-    // console.log("doesnt exist wnew widget widgetRegistry[widgetKey]");
     widgetData["ownership"] = "private";
     if (!widgetData.icon) {
       widgetData.icon = "widgets";
@@ -154,13 +157,14 @@ export const registerWidget = async (name, component, options = {}) => {
     }
   }
 
+  // Update the local widget registry
   widgetRegistry[widgetKey] = widgetData;
-  console.log(`Registered widget: ${widgetKey}`, widgetRegistry[widgetKey]);
 
   if (isBrowser) {
-    // Update localStorage cache after registration (browser only)
-    localStorage.setItem("widgetRegistry", JSON.stringify(widgetRegistry));
+    localStorage.setItem("widgetRegistry", JSON.stringify(widgetRegistry)); // Update localStorage cache after registration
   }
+
+  console.log(`Registered widget: ${widgetKey}`, widgetRegistry[widgetKey]);
 };
 
 export const setWidgets = (widgets) => {
