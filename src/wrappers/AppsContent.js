@@ -7,13 +7,6 @@ export const useAppsContentStyles = makeStyles((theme) => ({
   appsContentContainer: (props) => ({
     display: "flex",
     flexDirection: "column",
-    height: `calc(100% - ${props.isDetailView ? 60 : 115}px)`,
-    [theme.breakpoints.up("sm")]: {
-      height: `calc(100% - ${props.fullView ? 0 : 60}px)`,
-    },
-    [theme.breakpoints.up("xl")]: {
-      height: `calc(100% - ${props.fullView ? 0 : 77}px)`,
-    },
     "& .scrum-absolute": {
       position: "absolute",
       top: 0,

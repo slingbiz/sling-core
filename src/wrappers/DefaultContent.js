@@ -7,7 +7,7 @@ const DefaultContent = (props) => {
       container
       spacing={2}
       justifyContent={"center"}
-      width={"auto"}
+      width={"100%"}
       alignItems="baseline"
       flexDirection="row"
     >
