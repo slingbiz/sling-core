@@ -34,8 +34,3 @@ PageMeta.prototype = {
   title: PropTypes.string,
   description: PropTypes.string,
 };
-
-PageMeta.defaultProps = {
-  title: "Sling- Frontend Head Demo",
-  description: "Sling is the frontend head for your headless Api",
-};

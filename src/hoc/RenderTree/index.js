@@ -84,7 +84,7 @@ const RenderTree = (props) => {
         const Wrapper = Wrappers[config.wrapper];
         if (Wrapper) {
           return (
-            <Wrapper key={config.wrapper}>
+            <Wrapper key={`${config.wrapper}-${Math.random()}`}>
               {cells?.map((cell, index) => {
                 const { rows, key, payload, type } = cell;
                 const { muiWidths, props: widgetProps, muiHidden } = payload;

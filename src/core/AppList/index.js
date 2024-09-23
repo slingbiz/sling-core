@@ -1,9 +1,9 @@
-import React from 'react';
-import ListView from './ListView';
-import PropTypes from 'prop-types';
-import ListFooter from './ListFooter';
+import React from "react";
+import ListView from "./ListView";
+import PropTypes from "prop-types";
+import ListFooter from "./ListFooter";
 
-const AppList = ({footerProps, ...props}) => {
+const AppList = ({ footerProps, ...props }) => {
   return (
     <ListView
       {...props}
@@ -27,8 +27,4 @@ AppList.propTypes = {
   ListFooterComponent: PropTypes.node,
   data: PropTypes.array.isRequired,
   onEndReached: PropTypes.func,
-};
-AppList.defaultProps = {
-  border: false,
-  data: [],
 };

@@ -12,12 +12,7 @@ Suspense.propTypes = {
   loadingProps: PropTypes.object,
 };
 
-Suspense.defaultProps = {
-  loadingProps: {
-    delay: 300,
-  },
-};
-
+ 
 export default Suspense;
 
 Suspense.propTypes = {
