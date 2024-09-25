@@ -84,7 +84,7 @@ const RenderTree = (props) => {
         const Wrapper = Wrappers[config.wrapper];
         if (Wrapper) {
           return (
-            <Wrapper key={config.wrapper}>
+            <Wrapper key={`${config.wrapper}-${Math.random()}`}>
               {cells?.map((cell, index) => {
                 const { rows, key, payload, type } = cell;
                 const { muiWidths, props: widgetProps, muiHidden } = payload;
@@ -120,17 +120,45 @@ const RenderTree = (props) => {
                     console.log(`Component found for ${key}`, CellComponent);
                   }
 
-                  if (CellComponent && typeof CellComponent != "object") {
-                    const RenderedComponent = (
-                      <ErrorBoundary key={index}>
-                        <CellComponent
-                          parentProps={props}
-                          widgetProps={widgetProps}
-                          key={key}
-                          payload={payload}
-                        />
-                      </ErrorBoundary>
-                    );
+                  if (CellComponent) {
+                    let RenderedComponent;
+
+                    // Handle Symbol(react.forward_ref) by rendering it properly
+                    console.log("RenderedComponent - pre", CellComponent);
+
+                    if (
+                      typeof CellComponent === "object" &&
+                      CellComponent.$$typeof === Symbol.for("react.forward_ref")
+                    ) {
+                      console.log("RenderedComponent - 0", RenderedComponent);
+
+                      RenderedComponent = React.isValidElement(CellComponent)
+                        ? React.cloneElement(CellComponent, {
+                            parentProps: props,
+                            widgetProps: widgetProps,
+                            key: key,
+                            payload: payload,
+                          })
+                        : React.createElement(CellComponent, {
+                            parentProps: props,
+                            widgetProps: widgetProps,
+                            key: key,
+                            payload: payload,
+                          }); // Use React.createElement for cases where it's not an element yet
+
+                      console.log("RenderedComponent - 2", RenderedComponent);
+                    } else {
+                      RenderedComponent = (
+                        <ErrorBoundary key={index}>
+                          <CellComponent
+                            parentProps={props}
+                            widgetProps={widgetProps}
+                            key={key}
+                            payload={payload}
+                          />
+                        </ErrorBoundary>
+                      );
+                    }
 
                     if (muiHidden) {
                       return (

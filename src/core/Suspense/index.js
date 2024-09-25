@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {Loader} from '../Loader';
+import React from "react";
+import PropTypes from "prop-types";
+import Loader from "../Loader";
 
 const Suspense = (props) => {
   return (
@@ -12,12 +12,7 @@ Suspense.propTypes = {
   loadingProps: PropTypes.object,
 };
 
-Suspense.defaultProps = {
-  loadingProps: {
-    delay: 300,
-  },
-};
-
+ 
 export default Suspense;
 
 Suspense.propTypes = {

@@ -1,9 +1,9 @@
-import React from 'react';
-import {useBottomScrollListener} from 'react-bottom-scroll-listener';
-import PropTypes from 'prop-types';
-import {useTheme} from '@material-ui/core';
-import grey from '@material-ui/core/colors/grey';
-import Box from '@material-ui/core/Box';
+import React from "react";
+import { useBottomScrollListener } from "react-bottom-scroll-listener";
+import PropTypes from "prop-types";
+import { useTheme } from "@material-ui/core";
+import grey from "@material-ui/core/colors/grey";
+import Box from "@material-ui/core/Box";
 
 const getEmptyContainer = (ListEmptyComponent) => {
   if (ListEmptyComponent)
@@ -43,7 +43,7 @@ const ListView = ({
     border: `1px solid ${grey[300]}`,
     backgroundColor: theme.palette.background.paper,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   };
 
   if (!onEndReached) {
@@ -52,15 +52,16 @@ const ListView = ({
 
   let style = containerStyle;
   if (border) {
-    style = {...style, ...borderStyle};
+    style = { ...style, ...borderStyle };
   }
   useBottomScrollListener(onEndReached, 200);
   return (
     <Box
-      style={{...style}}
+      style={{ ...style }}
       {...rest}
       flex={1}
-      enter={{delay, duration, animation}}>
+      enter={{ delay, duration, animation }}
+    >
       {data.length > 0
         ? data.map((item, index) => renderRow(item, index))
         : getEmptyContainer(ListEmptyComponent)}
@@ -78,10 +79,4 @@ ListView.propTypes = {
   ListFooterComponent: PropTypes.node,
   data: PropTypes.array.isRequired,
   onEndReached: PropTypes.func,
-};
-ListView.defaultProps = {
-  border: false,
-  animation: 'transition.slideUpIn',
-  data: [],
-  onEndReached: () => {},
 };

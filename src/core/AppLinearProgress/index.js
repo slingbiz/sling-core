@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {makeStyles} from '@material-ui/core/styles';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import React from "react";
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 const useStyles = makeStyles({
   root: {
@@ -33,7 +33,7 @@ export function CustomLinearProgress({
   return (
     <LinearProgress
       className={classes.root}
-      classes={{colorPrimary: classes.colorPrimary, bar: classes.bar}}
+      classes={{ colorPrimary: classes.colorPrimary, bar: classes.bar }}
       {...rest}
     />
   );
@@ -44,12 +44,6 @@ CustomLinearProgress.propTypes = {
   activeColor: PropTypes.string,
   thickness: PropTypes.number,
   borderRadius: PropTypes.number,
-};
-CustomLinearProgress.defaultProps = {
-  thickness: 5,
-  pathColor: '#d6d6d6',
-  activeColor: '#1a90ff',
-  borderRadius: 10,
 };
 
 const AppLinearProgress = ({
@@ -70,20 +64,12 @@ const AppLinearProgress = ({
   );
 };
 
-AppLinearProgress.defaultProps = {
-  thickness: 5,
-  borderRadius: 10,
-  pathColor: '#d6d6d6',
-  activeColor: '#1a90ff',
-  variant: 'determinate',
-};
-
 AppLinearProgress.prototype = {
   thickness: PropTypes.number,
   borderRadius: PropTypes.number,
   pathColor: PropTypes.string,
   activeColor: PropTypes.string,
-  variant: PropTypes.oneOf(['buffer', 'determinate', 'indeterminate', 'query']),
+  variant: PropTypes.oneOf(["buffer", "determinate", "indeterminate", "query"]),
 };
 
 export default AppLinearProgress;
