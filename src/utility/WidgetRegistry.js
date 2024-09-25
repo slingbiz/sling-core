@@ -1,6 +1,6 @@
 import axiosSling from "./AxiosSling";
 
-const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "http://api.sling.biz";
+const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.sling.biz";
 const widgetRegistry = {};
 
 let initializingPromise = null;
