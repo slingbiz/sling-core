@@ -80,113 +80,98 @@ const RenderTree = (props) => {
 
   const processRows = (rows) => {
     return rows?.map(({ cells, config }) => {
-      if (config?.wrapper) {
-        const Wrapper = Wrappers[config.wrapper];
-        if (Wrapper) {
-          return (
-            <Wrapper key={`${config.wrapper}-${Math.random()}`}>
-              {cells?.map((cell, index) => {
-                const { rows, key, payload, type } = cell;
-                const { muiWidths, props: widgetProps, muiHidden } = payload;
+      const Wrapper = config?.wrapper
+        ? Wrappers[config.wrapper]
+        : Wrappers.DefaultContent;
+      Wrappers[config.wrapper];
+      if (Wrapper) {
+        return (
+          <Wrapper key={`${config.wrapper}-${Math.random()}`}>
+            {cells?.map((cell, index) => {
+              const { rows, key, payload, type } = cell;
+              const { muiWidths, props: widgetProps, muiHidden } = payload;
 
-                let CellComponent = null;
+              let CellComponent = null;
 
-                try {
-                  if (NodeTypeMap[type]?.[key]?.component) {
-                    CellComponent = NodeTypeMap[type]?.[key]?.component;
-                  } else {
-                    CellComponent = blocks[key];
-                    if (type) {
-                      CellComponent = NodeTypeMap[type]?.[key];
-                    }
+              try {
+                if (NodeTypeMap[type]?.[key]?.component) {
+                  CellComponent = NodeTypeMap[type]?.[key]?.component;
+                } else {
+                  CellComponent = blocks[key];
+                  if (type) {
+                    CellComponent = NodeTypeMap[type]?.[key];
                   }
+                }
+
+                if (
+                  typeof CellComponent === "object" &&
+                  CellComponent?.component
+                ) {
+                  CellComponent = CellComponent.component;
+                }
+
+                if (!CellComponent) {
+                  console.warn(
+                    `Component still not found for ${key}`,
+                    NodeTypeMap,
+                    type,
+                    key,
+                    "type - key"
+                  );
+                } else {
+                  console.log(`Component found for ${key}`, CellComponent);
+                }
+
+                if (CellComponent) {
+                  let RenderedComponent;
+
+                  // Handle Symbol(react.forward_ref) by rendering it properly
+                  console.log("RenderedComponent - pre", CellComponent);
 
                   if (
                     typeof CellComponent === "object" &&
-                    CellComponent?.component
+                    CellComponent.$$typeof === Symbol.for("react.forward_ref")
                   ) {
-                    CellComponent = CellComponent.component;
-                  }
+                    console.log("RenderedComponent - 0", RenderedComponent);
 
-                  if (!CellComponent) {
-                    console.warn(
-                      `Component still not found for ${key}`,
-                      NodeTypeMap,
-                      type,
-                      key,
-                      "type - key"
-                    );
+                    RenderedComponent = React.isValidElement(CellComponent)
+                      ? React.cloneElement(CellComponent, {
+                          parentProps: props,
+                          widgetProps: widgetProps,
+                          key: key,
+                          payload: payload,
+                        })
+                      : React.createElement(CellComponent, {
+                          parentProps: props,
+                          widgetProps: widgetProps,
+                          key: key,
+                          payload: payload,
+                        }); // Use React.createElement for cases where it's not an element yet
+
+                    console.log("RenderedComponent - 2", RenderedComponent);
                   } else {
-                    console.log(`Component found for ${key}`, CellComponent);
-                  }
-
-                  if (CellComponent) {
-                    let RenderedComponent;
-
-                    // Handle Symbol(react.forward_ref) by rendering it properly
-                    console.log("RenderedComponent - pre", CellComponent);
-
-                    if (
-                      typeof CellComponent === "object" &&
-                      CellComponent.$$typeof === Symbol.for("react.forward_ref")
-                    ) {
-                      console.log("RenderedComponent - 0", RenderedComponent);
-
-                      RenderedComponent = React.isValidElement(CellComponent)
-                        ? React.cloneElement(CellComponent, {
-                            parentProps: props,
-                            widgetProps: widgetProps,
-                            key: key,
-                            payload: payload,
-                          })
-                        : React.createElement(CellComponent, {
-                            parentProps: props,
-                            widgetProps: widgetProps,
-                            key: key,
-                            payload: payload,
-                          }); // Use React.createElement for cases where it's not an element yet
-
-                      console.log("RenderedComponent - 2", RenderedComponent);
-                    } else {
-                      RenderedComponent = (
-                        <ErrorBoundary key={index}>
-                          <CellComponent
-                            parentProps={props}
-                            widgetProps={widgetProps}
-                            key={key}
-                            payload={payload}
-                          />
-                        </ErrorBoundary>
-                      );
-                    }
-
-                    if (muiHidden) {
-                      return (
-                        <Hidden {...muiHidden} key={index}>
-                          <Grid item display={"flex"} flex={1} {...muiWidths}>
-                            {RenderedComponent}
-                          </Grid>
-                        </Hidden>
-                      );
-                    }
-
-                    return (
-                      <Grid
-                        item
-                        display={"flex"}
-                        flex={1}
-                        {...muiWidths}
-                        key={index}
-                      >
-                        {RenderedComponent}
-                      </Grid>
+                    RenderedComponent = (
+                      <ErrorBoundary key={index}>
+                        <CellComponent
+                          parentProps={props}
+                          widgetProps={widgetProps}
+                          key={key}
+                          payload={payload}
+                        />
+                      </ErrorBoundary>
                     );
                   }
-                } catch (error) {
-                  console.error(
-                    `Error rendering widget/block "${key}":`,
-                    error
-                  );
+
+                  if (muiHidden) {
+                    return (
+                      <Hidden {...muiHidden} key={index}>
+                        <Grid item display={"flex"} flex={1} {...muiWidths}>
+                          {RenderedComponent}
+                        </Grid>
+                      </Hidden>
+                    );
+                  }
+
                   return (
                     <Grid
                       item
@@ -195,64 +180,76 @@ const RenderTree = (props) => {
                       {...muiWidths}
                       key={index}
                     >
-                      <DefaultErrorComponent error={error.message} key={key} />
+                      {RenderedComponent}
                     </Grid>
                   );
                 }
+              } catch (error) {
+                console.error(`Error rendering widget/block "${key}":`, error);
+                return (
+                  <Grid
+                    item
+                    display={"flex"}
+                    flex={1}
+                    {...muiWidths}
+                    key={index}
+                  >
+                    <DefaultErrorComponent error={error.message} key={key} />
+                  </Grid>
+                );
+              }
 
-                if (rows) {
-                  if (muiHidden) {
-                    return (
-                      <Hidden {...muiHidden} key={index}>
-                        <Grid
-                          item
-                          {...muiWidths}
-                          display={"flex"}
-                          flexDirection={"column"}
-                          justifyContent={"center"}
-                          alignItems={"center"}
-                        >
-                          <Box
-                            spacing={2}
-                            justifyContent={"center"}
-                            width={"auto"}
-                          >
-                            {processRows(rows)}
-                          </Box>
-                        </Grid>
-                      </Hidden>
-                    );
-                  }
+              if (rows) {
+                if (muiHidden) {
                   return (
-                    <Grid
-                      item
-                      {...muiWidths}
-                      display={"flex"}
-                      flexDirection={"column"}
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      key={index}
-                    >
-                      <Box spacing={2} justifyContent={"center"} width={"auto"}>
-                        {processRows(rows)}
-                      </Box>
-                    </Grid>
+                    <Hidden {...muiHidden} key={index}>
+                      <Grid
+                        item
+                        {...muiWidths}
+                        display={"flex"}
+                        flexDirection={"column"}
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                      >
+                        <Box
+                          spacing={2}
+                          justifyContent={"center"}
+                          width={"auto"}
+                        >
+                          {processRows(rows)}
+                        </Box>
+                      </Grid>
+                    </Hidden>
                   );
                 }
+                return (
+                  <Grid
+                    item
+                    {...muiWidths}
+                    display={"flex"}
+                    flexDirection={"column"}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    key={index}
+                  >
+                    <Box spacing={2} justifyContent={"center"} width={"auto"}>
+                      {processRows(rows)}
+                    </Box>
+                  </Grid>
+                );
+              }
 
-                return null;
-              })}
-            </Wrapper>
-          );
-        }
+              return null;
+            })}
+          </Wrapper>
+        );
       }
-      return null;
     });
   };
 
   return (
     <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
-      {Object.keys(tree).map((section) => {
+      {Object.keys(tree)?.map((section) => {
         const rows = tree[section].rows;
         elements.push(...processRows(rows));
         return null;
