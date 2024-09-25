@@ -83,7 +83,6 @@ const RenderTree = (props) => {
       const Wrapper = config?.wrapper
         ? Wrappers[config.wrapper]
         : Wrappers.DefaultContent;
-      Wrappers[config.wrapper];
       if (Wrapper) {
         return (
           <Wrapper key={`${config.wrapper}-${Math.random()}`}>

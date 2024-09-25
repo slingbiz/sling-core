@@ -1,6 +1,6 @@
 {
   "name": "sling-core",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Core components and utilities for Sling applications.",
   "main": "dist/index.js",
   "scripts": {
