@@ -5,7 +5,6 @@ const DefaultContent = (props) => {
   return (
     <Grid
       container
-      spacing={2}
       justifyContent={"center"}
       width={"100%"}
       alignItems="baseline"

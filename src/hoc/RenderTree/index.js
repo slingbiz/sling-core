@@ -79,13 +79,22 @@ const RenderTree = (props) => {
   }
 
   const processRows = (rows) => {
+    if (!rows) return null;
     return rows?.map(({ cells, config }) => {
-      const Wrapper = config?.wrapper
-        ? Wrappers[config.wrapper]
-        : Wrappers.DefaultContent;
+      let Wrapper = Wrappers.DefaultContent; // Default to DefaultContent
+
+      // Check if config exists and if it has a wrapper
+      if (config && config.wrapper) {
+        Wrapper = Wrappers[config.wrapper] || Wrappers.DefaultContent; // Fallback to DefaultContent if wrapper not found
+      }
+
       if (Wrapper) {
         return (
-          <Wrapper key={`${config.wrapper}-${Math.random()}`}>
+          <Wrapper
+            key={`${
+              config?.wrapper ? config?.wrapper : "DefaultContent"
+            }-${Math.random()}`}
+          >
             {cells?.map((cell, index) => {
               const { rows, key, payload, type } = cell;
               const { muiWidths, props: widgetProps, muiHidden } = payload;
@@ -164,7 +173,13 @@ const RenderTree = (props) => {
                   if (muiHidden) {
                     return (
                       <Hidden {...muiHidden} key={index}>
-                        <Grid item display={"flex"} flex={1} {...muiWidths}>
+                        <Grid
+                          item
+                          display={"flex"}
+                          flex={1}
+                          {...muiWidths}
+                          style={{ padding: 0 }}
+                        >
                           {RenderedComponent}
                         </Grid>
                       </Hidden>
@@ -211,7 +226,7 @@ const RenderTree = (props) => {
                         alignItems={"center"}
                       >
                         <Box
-                          spacing={2}
+                          // spacing={2}
                           justifyContent={"center"}
                           width={"auto"}
                         >
@@ -243,6 +258,7 @@ const RenderTree = (props) => {
           </Wrapper>
         );
       }
+      return <></>;
     });
   };
 
@@ -250,7 +266,8 @@ const RenderTree = (props) => {
     <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
       {Object.keys(tree)?.map((section) => {
         const rows = tree[section].rows;
-        elements.push(...processRows(rows));
+        const pRows = processRows(rows) || [];
+        elements.push(...pRows);
         return null;
       })}
       {elements}
