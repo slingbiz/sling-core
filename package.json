@@ -1,11 +1,11 @@
 {
   "name": "sling-core",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Core components and utilities for Sling applications.",
   "main": "dist/index.js",
   "scripts": {
     "build": "webpack --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test src/utility/widgetList.test.js src/hoc/RenderTree/RenderTree.missing.test.js"
   },
   "bugs": {
     "url": "https://github.com/slingbiz/sling-fe/issues"

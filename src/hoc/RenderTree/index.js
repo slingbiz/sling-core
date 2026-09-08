@@ -198,6 +198,22 @@ const RenderTree = (props) => {
                     </Grid>
                   );
                 }
+
+                if (key && !rows) {
+                  return (
+                    <Grid
+                      item
+                      display={"flex"}
+                      flex={1}
+                      {...(muiWidths || {})}
+                      key={index}
+                    >
+                      <DefaultErrorComponent
+                        error={`Component not found for "${key}"`}
+                      />
+                    </Grid>
+                  );
+                }
               } catch (error) {
                 console.error(`Error rendering widget/block "${key}":`, error);
                 return (

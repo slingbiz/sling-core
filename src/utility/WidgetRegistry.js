@@ -1,4 +1,7 @@
 import axiosSling from "./AxiosSling";
+import widgetListUtil from "./widgetList";
+
+const { listWidgetsFromResponse, shouldApplyWidgetList } = widgetListUtil;
 
 const serviceUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.sling.biz";
 const widgetRegistry = {};
@@ -27,7 +30,10 @@ const initializeWidgetRegistry = async () => {
             { size: 1000 } // Fetch all widgets
           );
 
-          const widgets = response.data?.widgets?.widgets || [];
+          const widgets = listWidgetsFromResponse(response.data);
+          if (!shouldApplyWidgetList(widgets)) {
+            return;
+          }
           setWidgets(widgets);
 
           if (isBrowser) {
